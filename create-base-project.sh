@@ -41,8 +41,10 @@ then
     fi
 fi
 
+base_dir=$(dirname "$0")
+
 echo "Copying files for base project folder..."
-cp -r $eosd/.vscode $1
+cp -r $base_dir/.vscode $1
 
 mkdir $1/CMakeModules/
 
@@ -55,13 +57,13 @@ mkdir $1/contracts/
 cp -r $eosd/contracts/eosiolib $1/contracts/
 cp -r $eosd/contracts/libc++ $1/contracts/
 cp -r $eosd/contracts/musl $1/contracts/
-cp $eosd/contracts/CMakeLists.txt $1/contracts/
+cp $base_dir/CMakeLists-contracts.txt $1/contracts/CMakeLists.txt
 
 cp -r $eosd/externals $1
 
 cp -r $eosd/libraries $1
 
-cp $eosd/CMakeLists.txt $1
+cp $base_dir/CMakeLists.txt $1
 
 
 echo "Base Project created succesfully!"

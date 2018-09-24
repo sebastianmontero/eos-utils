@@ -1,0 +1,53 @@
+#!/bin/bash
+
+hwd="/tmp/eosio/work/"
+gwd="/work"
+
+echo "Current working directory -" $1
+
+d="$(basename "$1")"
+pd="$(dirname "$1")"
+pd="$(basename "$pd")"
+
+echo "Parent directory name: $pd" 
+
+if [ "contracts" = "$pd" ] 
+then
+    echo "Selected contract: $d"
+
+    echo "Copying contract: $d to $hwd ..."
+    echo S5b1sti1n | sudo -S cp -r $1 $hwd
+
+    if [ $? -ne 0 ] 
+    then
+        echo "Unable to copy contract"
+        exit 1
+    fi
+
+    echo "Generating ABI..."
+    docker exec nodeos eosiocpp -g $gwd/$d/$d.abi $gwd/$d/$d.cpp
+
+    if [ $? -ne 0 ] 
+    then
+        echo "Unable to generate abi"
+        exit 1
+    fi
+
+    echo "Generating WAST..."
+    docker exec nodeos eosiocpp -o $gwd/$d/$d.wast $gwd/$d/$d.cpp
+
+    if [ $? -ne 0 ] 
+    then
+        echo "Unable to generate WAST"
+        exit 1
+    fi
+
+else
+    echo "The selected dir does not belong to the contracts dir"
+    exit 1
+fi
+
+
+
+
+#sudo cp -r $1 /tmp/eosio/work/
