@@ -6,7 +6,7 @@ RUN git config --global user.name "seb-eos-dev"
 RUN git config --global user.email "seb.eos.dev@gmail.com"
 RUN git clone https://github.com/EOSIO/eos --recursive
 WORKDIR /eos
-RUN ./eosio_build.sh
+RUN yes 1 | ./eosio_build.sh
 RUN sed -i -e 's/,::1//g' $HOME/opt/mongodb/mongod.conf
 RUN ./eosio_install.sh
 
