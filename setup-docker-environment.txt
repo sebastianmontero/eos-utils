@@ -1,3 +1,5 @@
+docker network create eosdev
+
 docker run --name nodeos -d -p 8888:8888 --network eosdev \
 -v /tmp/eosio/work:/work -v eos-data:/mnt/dev/data \
 -v eos-config:/mnt/dev/config sebastianmontero/eos-dev  \
@@ -8,3 +10,10 @@ docker run --name nodeos -d -p 8888:8888 --network eosdev \
 --config-dir /mnt/dev/config \
 --http-server-address=0.0.0.0:8888 \
 --access-control-allow-origin=* --contracts-console --http-validate-host=false"
+
+
+docker run -d --name keosd --network=eosdev \
+-i eosio/eos-dev /bin/bash -c "keosd --http-server-address=0.0.0.0:9876"
+
+#Have to setup cleos alias view .bash_aliases
+
