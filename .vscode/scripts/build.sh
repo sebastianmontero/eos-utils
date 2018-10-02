@@ -3,6 +3,7 @@
 hwd="/tmp/eosio/work/"
 gwd="/work"
 
+echo parameters $0
 echo "Current working directory -" $1
 
 d="$(basename "$1")"
@@ -24,17 +25,21 @@ then
         exit 1
     fi
 
-    echo "Generating ABI..."
-    docker exec nodeos eosiocpp -g $gwd/$d/$d.abi $gwd/$d/$d.cpp
-
-    if [ $? -ne 0 ] 
-    then
-        echo "Unable to generate abi"
-        exit 1
+    if [[ $d !=  eosio* ]]
+    then 
+        echo "Generating ABI..."
+        docker exec nodeos eosiocpp -g $gwd/$d/$d.abi $gwd/$d/$d.cpp
+        #docker exec nodeos eosio-abigen $gwd/$d/$d.cpp --output=$gwd/$d/$d.abi
+    
+        if [ $? -ne 0 ] 
+        then
+            echo "Unable to generate abi"
+            exit 1
+        fi
     fi
 
     echo "Generating WAST..."
-    docker exec nodeos eosiocpp -o $gwd/$d/$d.wast $gwd/$d/$d.cpp
+    docker exec nodeos eosio-cpp $gwd/$d/$d.cpp -o $gwd/$d/$d.wasm 
 
     if [ $? -ne 0 ] 
     then
