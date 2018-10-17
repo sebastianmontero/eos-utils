@@ -1,0 +1,4 @@
+ipython
+setuptools
+wheel
+termcolor

@@ -1,0 +1,23 @@
+version: '3'
+services:
+  eosf:
+    build: .
+    ports:
+     - "8888:8888"
+    volumes:
+     - ~/eos-workspace:/workspace
+     - eos-contracts:/eos/contracts
+     - eos-externals:/eos/externals
+     - usr-include:/usr/local/include
+     - boost:/root/opt/boost/include
+     - eosf:/root/eosf
+    env_file: eosf.env
+    stdin_open: true
+
+
+volumes:
+  eos-contracts:
+  eos-externals:
+  usr-include:
+  boost:
+  eosf:
