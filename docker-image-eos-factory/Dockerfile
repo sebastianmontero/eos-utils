@@ -25,7 +25,8 @@ RUN mv eosf.py eosf/__init__.py
 COPY setup.py requirements.txt ./
 RUN python3 -m pip install -r requirements.txt
 RUN python3 setup.py bdist_wheel
-COPY eosf-create-project.sh eosf-test.sh /usr/local/bin/
+COPY eosf-create-project.sh eosf-test.sh eosf-deploy-contract.sh /usr/local/bin/
+COPY eosf-deploy-contract.py /usr/local/bin/
 RUN chmod u+x /usr/local/bin/eosf-*.sh
 WORKDIR /workspace
 COPY c_cpp_properties.json ./
