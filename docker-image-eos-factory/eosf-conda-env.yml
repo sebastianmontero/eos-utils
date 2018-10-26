@@ -1,0 +1,7 @@
+name: eosf
+dependencies:
+  - python=3.6
+  - pylint
+  - termcolor
+  - pip:
+    - /var/lib/docker/volumes/docker-image-eos-factory_eosf/_data

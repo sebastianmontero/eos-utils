@@ -27,7 +27,10 @@ RUN python3 -m pip install -r requirements.txt
 RUN python3 setup.py bdist_wheel
 COPY eosf-create-project.sh eosf-test.sh eosf-deploy-contract.sh /usr/local/bin/
 COPY eosf-deploy-contract.py /usr/local/bin/
+COPY eos-config.ini /eosfactory/build/daemon/data-dir/config.ini
+COPY eosfactory-config.ini /eosfactory/config.json
 RUN chmod u+x /usr/local/bin/eosf-*.sh
+RUN mkdir /root/eosf-support-files
+COPY c_cpp_properties.json /root/eosf-support-files/
 WORKDIR /workspace
-COPY c_cpp_properties.json ./
 CMD ["/bin/bash"]

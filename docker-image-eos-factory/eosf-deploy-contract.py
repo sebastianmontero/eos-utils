@@ -3,6 +3,18 @@ import re
 from eosf import *
 
 
+def _create_account(account, master):
+    print('Creating {} account...'.format(account))
+    create_account(account, master)
+
+def _display_account_details(account):
+    print(account.info())
+    if not isinstance(account.active_key, str):
+        print('Active private key: {}'.format(account.active_key.key_private))
+    if not isinstance(account.owner_key, str):
+        print('Owner private key: {}'.format(account.owner_key.key_private))
+
+
 def get_contract_account(contract):
     user = re.sub(r'[^12345abcdefghijklmnopqrstuvwxyz]','', contract.lower())
     return user[:12]
@@ -53,4 +65,23 @@ contract.deploy()
 
 print('Contract {} successfully deployed'.format(args.contract))
 
+print('Creating test accounts...')
+_create_account('alice', master)
+_create_account('bob', master)
+_create_account('carol', master)
 
+print()
+print('------------------Account details----------------------------')
+_display_account_details(master)
+print()
+print()
+_display_account_details(globals()[contract_account])
+print()
+print()
+_display_account_details(alice)
+print()
+print()
+_display_account_details(bob)
+print()
+print()
+_display_account_details(carol)

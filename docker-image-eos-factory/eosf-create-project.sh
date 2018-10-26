@@ -8,5 +8,7 @@ then
    exit 1
 fi
 
-cp /workspace/c_cpp_properties.json /workspace/$1/.vscode/
+cp /root/eosf-support-files/c_cpp_properties.json /workspace/$1/.vscode/
+
+chmod -R a+w /workspace/$1
 

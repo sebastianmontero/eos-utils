@@ -2,8 +2,9 @@ version: '3'
 services:
   eosf:
     build: .
+    image: sebastianmontero/eosf
     ports:
-     - "8888:8888"
+     - "127.0.0.1:8888:8888"
     volumes:
      - ~/eos-workspace:/workspace
      - eos-contracts:/eos/contracts
