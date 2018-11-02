@@ -1,11 +1,12 @@
 import argparse
 import re
-from eosf import *
+from eosfactory.eosf import *
 
 
 def _create_account(account, master):
     print('Creating {} account...'.format(account))
     create_account(account, master)
+
 
 def _display_account_details(account):
     print(account.info())
@@ -16,14 +17,14 @@ def _display_account_details(account):
 
 
 def get_contract_account(contract):
-    user = re.sub(r'[^12345abcdefghijklmnopqrstuvwxyz]','', contract.lower())
+    user = re.sub(r'[^12345abcdefghijklmnopqrstuvwxyz]', '', contract.lower())
     return user[:12]
-
 
 
 parser = argparse.ArgumentParser(description='Deploy contract')
 parser.add_argument('contract', help='Contract name')
-parser.add_argument('--reset', '-r', required=False, help='Show real values tail', dest='reset', action='store_true')
+parser.add_argument('--reset', '-r', required=False,
+                    help='Show real values tail', dest='reset', action='store_true')
 
 args = parser.parse_args()
 print(args)
@@ -59,7 +60,7 @@ contract_account = get_contract_account(args.contract)
 print('Creating contract account:{}... '.format(contract_account))
 create_account(contract_account, master)
 
-contract = Contract(globals()[contract_account],contract.path())
+contract = Contract(globals()[contract_account], contract.path())
 print('Deploying contract...')
 contract.deploy()
 

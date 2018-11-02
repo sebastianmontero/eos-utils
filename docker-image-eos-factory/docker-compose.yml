@@ -3,6 +3,7 @@ services:
   eosf:
     build: .
     image: sebastianmontero/eosf
+    container_name: eosf
     ports:
      - "127.0.0.1:8888:8888"
     volumes:
@@ -11,7 +12,7 @@ services:
      - eos-externals:/eos/externals
      - usr-include:/usr/local/include
      - boost:/root/opt/boost/include
-     - eosf:/root/eosf
+     - eosfactory:/eosfactory
     env_file: eosf.env
     stdin_open: true
 
@@ -21,4 +22,4 @@ volumes:
   eos-externals:
   usr-include:
   boost:
-  eosf:
+  eosfactory:

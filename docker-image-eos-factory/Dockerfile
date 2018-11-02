@@ -12,23 +12,19 @@ RUN sed -i -e 's/,::1//g' $HOME/opt/mongodb/mongod.conf
 RUN ./eosio_install.sh
 
 WORKDIR /
-RUN git clone https://github.com/tokenika/eosfactory.git eosfactory
+RUN pwd
+RUN pwd
+RUN git clone https://github.com/sebastianmontero/eosfactory.git eosfactory
+RUN apt-get -y install python3-pip
+RUN python3 -m pip install termcolor ipython setuptools wheel
 WORKDIR /eosfactory
 RUN mkdir /workspace
-RUN ./build.sh -e /eos -w /workspace
 RUN mkdir ~/eosio-wallet
-RUN apt-get -y install python3-pip
-RUN cp -r /eosfactory/pyteos /root/eosf
-WORKDIR /root/eosf
-RUN mkdir eosf
-RUN mv eosf.py eosf/__init__.py
-COPY setup.py requirements.txt ./
-RUN python3 -m pip install -r requirements.txt
-RUN python3 setup.py bdist_wheel
+COPY eosfactory-config.ini /eosfactory/config.json
+RUN ./install.sh
 COPY eosf-create-project.sh eosf-test.sh eosf-deploy-contract.sh /usr/local/bin/
 COPY eosf-deploy-contract.py /usr/local/bin/
 COPY eos-config.ini /eosfactory/build/daemon/data-dir/config.ini
-COPY eosfactory-config.ini /eosfactory/config.json
 RUN chmod u+x /usr/local/bin/eosf-*.sh
 RUN mkdir /root/eosf-support-files
 COPY c_cpp_properties.json /root/eosf-support-files/
