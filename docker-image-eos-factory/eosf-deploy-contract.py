@@ -1,6 +1,12 @@
 import argparse
 import re
+import os
 from eosfactory.eosf import *
+
+
+INITIAL_RAM_KBYTES = 8
+INITIAL_STAKE_NET = 3
+INITIAL_STAKE_CPU = 3
 
 
 def _create_account(account, master):
@@ -8,12 +14,24 @@ def _create_account(account, master):
     create_account(account, master)
 
 
-def _display_account_details(account):
-    print(account.info())
+def get_account_details(accounts):
+    details = '------------------Account details----------------------------\n'
+    for account in accounts:
+        details += _get_single_account_details(account) + '\n\n'
+
+    return details
+
+
+def _get_single_account_details(account):
+    details = 'Account object name: {}\n'.format(account.account_object_name)
+    details += 'Account name: {}\n'.format(account.name)
     if not isinstance(account.active_key, str):
-        print('Active private key: {}'.format(account.active_key.key_private))
+        details += 'Active private key: {} public key: {}\n'.format(
+            account.active_key.key_private, account.active_key.key_public)
     if not isinstance(account.owner_key, str):
-        print('Owner private key: {}'.format(account.owner_key.key_private))
+        details += 'Owner private key: {} public key: {}\n'.format(
+            account.owner_key.key_private, account.owner_key.key_public)
+    return details
 
 
 def get_contract_account(contract):
@@ -21,68 +39,84 @@ def get_contract_account(contract):
     return user[:12]
 
 
+def stats():
+    print_stats(
+        [master, host, alice, carol, bob],
+        [
+            "core_liquid_balance",
+            "ram_usage",
+            "ram_quota",
+            "total_resources.ram_bytes",
+            "self_delegated_bandwidth.net_weight",
+            "self_delegated_bandwidth.cpu_weight",
+            "total_resources.net_weight",
+            "total_resources.cpu_weight",
+            "net_limit.available",
+            "net_limit.max",
+            "net_limit.used",
+            "cpu_limit.available",
+            "cpu_limit.max",
+            "cpu_limit.used"
+        ]
+    )
+
+
 parser = argparse.ArgumentParser(description='Deploy contract')
 parser.add_argument('contract', help='Contract name')
 parser.add_argument('--reset', '-r', required=False,
                     help='Show real values tail', dest='reset', action='store_true')
+parser.add_argument('--testnet', '-t', required=False,
+                    help='The name of the remote testnet to use', dest='testnet')
 
 args = parser.parse_args()
 print(args)
 
-contract = ContractBuilder(args.contract)
-print('Building contract: {}...'.format(args.contract))
-contract.build()
+print('Getting testnet: {}'.format(args.testnet if args.testnet else 'local'))
 
-if args.reset:
-    print('Resetting block chain...')
-    reset()
-else:
-    print('Starting block chain...')
-    resume()
+testnet = get_testnet(args.testnet, reset=args.reset)
 
-try:
-    print('Creating wallet...')
-    create_wallet()
-except NameError:
-    print('Wallet already exists')
+print('Configuring testnet...')
+testnet.configure()
 
-try:
-    print('Unlocking wallet ...')
-    get_wallet().unlock()
-except:
-    print('Already unlocked')
+if args.reset and not testnet.is_local():
+    print('Clearing account cache...')
+    testnet.clear_cache()
 
-print('Creating master account')
-create_master_account('master')
+print('Verifying testnet is running...')
+testnet.verify_production()
 
-contract_account = get_contract_account(args.contract)
+print('Configuring master account...')
+create_master_account("master", testnet)
 
-print('Creating contract account:{}... '.format(contract_account))
-create_account(contract_account, master)
-
-contract = Contract(globals()[contract_account], contract.path())
-print('Deploying contract...')
-contract.deploy()
-
-print('Contract {} successfully deployed'.format(args.contract))
+print('Creating host account...')
+create_account("host", master,
+               buy_ram_kbytes=INITIAL_RAM_KBYTES, stake_net=INITIAL_STAKE_NET, stake_cpu=INITIAL_STAKE_CPU)
 
 print('Creating test accounts...')
-_create_account('alice', master)
-_create_account('bob', master)
-_create_account('carol', master)
+create_account("alice", master,
+               buy_ram_kbytes=INITIAL_RAM_KBYTES, stake_net=INITIAL_STAKE_NET, stake_cpu=INITIAL_STAKE_CPU)
+create_account("carol", master,
+               buy_ram_kbytes=INITIAL_RAM_KBYTES, stake_net=INITIAL_STAKE_NET, stake_cpu=INITIAL_STAKE_CPU)
+create_account("bob", master,
+               buy_ram_kbytes=INITIAL_RAM_KBYTES, stake_net=INITIAL_STAKE_NET, stake_cpu=INITIAL_STAKE_CPU)
+
+if not testnet.is_local():
+    stats()
+
+contract = Contract(host, args.contract)
+print('Building contract: {}...'.format(args.contract))
+contract.build(force=False)
+
+print('Deploying contract...')
+contract.deploy(payer=master)
+
+account_details = get_account_details([master, host, alice, bob, carol])
 
 print()
-print('------------------Account details----------------------------')
-_display_account_details(master)
-print()
-print()
-_display_account_details(globals()[contract_account])
-print()
-print()
-_display_account_details(alice)
-print()
-print()
-_display_account_details(bob)
-print()
-print()
-_display_account_details(carol)
+print(account_details)
+
+if not testnet.is_local():
+    contract_name = os.path.basename(os.path.dirname(args.contract))
+    contract_code = cleos.GetCode(host).code_hash
+    with open('/root/remote-contracts/{}-{}.txt'.format(contract_name, contract_code), 'w') as account_details_file:
+        account_details_file.write(account_details)

@@ -22,11 +22,12 @@ RUN mkdir /workspace
 RUN mkdir ~/eosio-wallet
 COPY eosfactory-config.ini /eosfactory/config.json
 RUN ./install.sh
-COPY eosf-create-project.sh eosf-test.sh eosf-deploy-contract.sh /usr/local/bin/
-COPY eosf-deploy-contract.py /usr/local/bin/
+COPY eosf-create-project.sh eosf-test.sh eosf-deploy-contract.sh eosf-register-testnet.sh eosf-list-testnets.sh eosf-wallet-op.sh /usr/local/bin/
+COPY eosf-deploy-contract.py eosf-wallet-op.py /usr/local/bin/
 COPY eos-config.ini /eosfactory/build/daemon/data-dir/config.ini
 RUN chmod u+x /usr/local/bin/eosf-*.sh
 RUN mkdir /root/eosf-support-files
+RUN mkdir /root/remote-contracts
 COPY c_cpp_properties.json /root/eosf-support-files/
 WORKDIR /workspace
 CMD ["/bin/bash"]
